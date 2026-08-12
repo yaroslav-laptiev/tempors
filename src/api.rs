@@ -59,21 +59,26 @@ impl TemporsApi {
         // lookup associated func
 
         let mut func: Option<TFunction> = None;
-        
+
         for f in &self.db.functions {
             if f.id == event.clone().unwrap().func_id {
                 func = Some(f.clone())
             }
         }
 
-          match func {
+        match func {
             Some(_) => {}
             None => {
                 return Err(TError::NotFound("func not found".to_string()));
             }
         }
 
-        let event_run = TEventRun { id: format!("event-run-{}", self.db.event_runs.len()), event_id: event.clone().unwrap().id, payload: event.clone().unwrap().payload, status: types::TEventRunStatus::Queued };
+        let event_run = TEventRun {
+            id: format!("event-run-{}", self.db.event_runs.len()),
+            event_id: event.clone().unwrap().id,
+            payload: event.clone().unwrap().payload,
+            status: types::TEventRunStatus::Queued,
+        };
 
         self.db.event_runs.insert(0, event_run);
 
@@ -87,6 +92,6 @@ pub struct FireEventPayload {
     pub payload: HashMap<String, Value>,
 }
 
-// 2 queues: 
+// 2 queues:
 // EventsQueue - all created events are getting processed by worker
 // EventRunsQueue - processing EventsQueue == creating new EventRuns

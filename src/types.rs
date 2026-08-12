@@ -1,4 +1,6 @@
-use serde_json::Value;
+use serde_json::{Map, Value};
+use sqlx::prelude::FromRow;
+use sqlx::types::Json;
 use std::fmt::Debug;
 use std::{collections::HashMap, sync::Arc};
 use thiserror::Error;
@@ -21,17 +23,6 @@ pub enum TError {
 }
 
 #[derive(Clone, Debug)]
-pub struct TEvent {
-    pub id: String,
-    pub func_id: String,
-    pub payload: HashMap<String, Value>,
-}
-#[derive(Clone, Debug)]
-pub struct TFunction {
-    pub id: String,
-    pub payload: HashMap<String, Value>,
-}
-#[derive(Clone, Debug)]
 pub enum TEventRunStatus {
     Queued,
     Running,
@@ -40,9 +31,22 @@ pub enum TEventRunStatus {
     Canceled,
 }
 
-pub struct TEventRun {
+#[derive(Clone, Debug, FromRow)]
+pub struct TEvent {
     pub id: String,
+    pub func_id: String,
+    pub payload: Json<Map<String, Value>>,
+}
+#[derive(Clone, Debug, FromRow)]
+pub struct TFunction {
+    pub id: String,
+    pub payload: Json<Map<String, Value>>,
+}
+
+#[derive(Clone, Debug, FromRow)]
+pub struct TEventRun {
+    pub id: uuid::Uuid,
     pub event_id: String,
-    pub payload: HashMap<String, Value>,
+    pub payload: Json<Map<String, Value>>,
     pub status: TEventRunStatus,
 }
