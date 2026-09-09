@@ -2,7 +2,6 @@ use serde_json::{Map, Value};
 use sqlx::prelude::FromRow;
 use sqlx::types::Json;
 use std::fmt::Debug;
-use std::{collections::HashMap, sync::Arc};
 use thiserror::Error;
 /*
     Error abstraction to be used accross the app
@@ -22,7 +21,15 @@ pub enum TError {
     NonRetraible(String),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug, sqlx::Type)]
+#[sqlx(type_name = "tempors.event_status", rename_all = "lowercase")]
+pub enum TEventStatus {
+    Pending,
+    Processed,
+}
+
+#[derive(Clone, Copy, Debug, sqlx::Type)]
+#[sqlx(type_name = "tempors.event_run_status", rename_all = "lowercase")]
 pub enum TEventRunStatus {
     Queued,
     Running,
@@ -31,15 +38,52 @@ pub enum TEventRunStatus {
     Canceled,
 }
 
+// TODO: Add triggers, for now all EventHandlers act like they have event trigger
+// trait TTrigger {}
+
+// #[derive(Clone, Debug)]
+// pub struct EventTrigger {
+//     event_name: String
+// }
+
+// #[derive(Clone, Debug)]
+// pub struct CronTrigger {
+//     expression: String
+// }
+
+// impl EventTrigger {
+//      pub fn new(event_name: String) -> Self {
+//         EventTrigger { event_name }
+//     }
+// }
+
+// impl TTrigger for EventTrigger {}
+
+// impl CronTrigger {
+//      pub fn new(expression: String) -> Self {
+//         CronTrigger { expression }
+//     }
+// }
+
+// impl TTrigger for CronTrigger {}
+
+#[derive(Clone, Debug, FromRow)]
+pub struct TEventHandler {
+    pub id: String,
+    pub name: String,
+    pub event_id: uuid::Uuid,
+}
+
 #[derive(Clone, Debug, FromRow)]
 pub struct TEvent {
-    pub id: String,
+    pub id: uuid::Uuid,
     pub func_id: String,
     pub payload: Json<Map<String, Value>>,
+    pub status: TEventStatus,
 }
 #[derive(Clone, Debug, FromRow)]
 pub struct TFunction {
-    pub id: String,
+    pub id: uuid::Uuid,
     pub payload: Json<Map<String, Value>>,
 }
 

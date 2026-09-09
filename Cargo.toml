@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 serde = "1.0.229"
 serde_json = "1.0.151"
-sqlx = { version = "0.9.0", features = ["postgres"] }
+sqlx = { version = "0.9.0", features = ["postgres", "uuid"] }
 thiserror = "2.0.20"
 tokio = { version = "1.53.1", features = ["full"] }
 chrono = {version = "0.4.45", features = ["now"] }
@@ -17,4 +17,5 @@ version = "1.24.0"
 features = [
     "v4",
     "v7",
+    "serde",
 ]
